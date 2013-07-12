@@ -31,16 +31,23 @@ function getCacheServer() {
     return cacheServer;
 }
 
+// The maximum time in ms between creation time and when a cached validity
+// info expires.
+function getCacheTimeToLive() {
+    var cacheTimeToLive = parseInt(require("sdk/simple-prefs").prefs.cacheTimeToLive);
+    if (isNaN(cacheTimeToLive)) {
+        console.error("Cannot parse cache time to live to integer. Using default value: 90 seconds.");
+        cacheTimeToLive = 90;
+    }
+    return cacheTimeToLive*1000;
+}
+
 /****************************************************************************
  * Settings
  ****************************************************************************/
 var onlineValidatorUrl = "http://rpki-validator.realmv6.org/validator/v1.1";
 //var onlineValidatorUrl = "http://127.0.0.1:5000/validator/v1.1";
 //var onlineValidatorUrl = "http://127.0.0.1:80/validator/v1.1";
-
-// The maximum time in ms between creation time and when a cached validity
-// info expires.
-var cacheTimeToLive = 90*1000;
 
 // Create a panel which will show all the information
 var rpkiPanel = require("sdk/panel").Panel({
@@ -67,7 +74,7 @@ function updateData(tab) {
     var host = getHost();
     var info = rpkiData[host];
     var now = new Date();
-    if(info == null || (now - info["timestamp"])>cacheTimeToLive) {
+    if(info == null || (now - info["timestamp"])>getCacheTimeToLive()) {
         rpkiData[host] = null;
         clearData();
         getIp(host);

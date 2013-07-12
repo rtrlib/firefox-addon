@@ -1,6 +1,6 @@
 /**
  * The preferences for the extension.
- * Copy and paste them into the ""Properties-> Extra package.json Properties" field.
+ * Copy and paste them into the "Properties-> Extra package.json Properties" field.
  * They are stored here only for easier editing, because after copying them
  * into the "Extra package.json Properties", they lose the formatting.
 
@@ -16,7 +16,13 @@
         "name": "cacheServerPort",
         "value": "8282",
         "title": "Cache Server Port"
-    }    
+    },
+    {
+        "type": "string",
+        "name": "cacheTimeToLive",
+        "value": "90",
+        "title": "Cache Time To Live (Seconds)"
+    }
 ]}
 
 Old:
