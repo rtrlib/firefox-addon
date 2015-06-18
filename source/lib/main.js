@@ -45,10 +45,9 @@ function getCacheTimeToLive() {
 /****************************************************************************
  * Settings
  ****************************************************************************/
-var onlineValidatorUrl = "http://rpki-validator.realmv6.org/validator/v1.1";
-//var onlineValidatorUrl = "http://127.0.0.1:5000/validator/v1.1";
-//var onlineValidatorUrl = "http://127.0.0.1:80/validator/v1.1";
 
+//var onlineValidatorUrl = "http://localhost:5000/api/v1/validity/";
+var onlineValidatorUrl = "http://mobi22.cpt.haw-hamburg.de/api/v1/validity/";
 // Create a panel which will show all the information
 var rpkiPanel = require("sdk/panel").Panel({
   width: 400,
@@ -56,7 +55,7 @@ var rpkiPanel = require("sdk/panel").Panel({
   contentURL: data.url("rpkiPanel.html"),
   contentScriptFile: data.url("rpkiPanel.js"),
 });
- 
+
 // Create a widget, and attach the panel to it, so the panel is
 // shown when the user clicks the widget.
 var rpkiWidget = require("sdk/widget").Widget({
@@ -71,13 +70,13 @@ tabs.on('activate', updateData);
 
 // The main function which updates the icon and the information in the panel
 function updateData(tab) {
-    var host = getHost();
-    var info = rpkiData[host];
+    var ip = getIP();
+    var info = rpkiData[ip];
     var now = new Date();
     if(info == null || (now - info["timestamp"])>getCacheTimeToLive()) {
-        rpkiData[host] = null;
+        rpkiData[ip] = null;
         clearData();
-        getIp(host);
+        getAsData(ip);
     } else {
         updateWidgetIcon(info["validity"]);
         updatePanelContent(info);
@@ -86,11 +85,11 @@ function updateData(tab) {
 
 // Remove all the information from the panel and set the icon to the default state
 function clearData() {
-    updateWidgetIcon("N/A");
+    updateWidgetIcon(null);
     var info = new Object();
     info["ip"] = "N/A";
     info["prefix"] = "N/A";
-    info["asName"] = "N/A";
+    info["asname"] = "N/A";
     info["asn"] = "N/A";
     info["validity"] = "N/A";
     rpkiPanel.port.emit("panelContentReady", info);
@@ -106,18 +105,18 @@ function getHost() {
 }
 
 // Resolve the domain into the IP using Mozilla's DNS service
-function getIp(host) {
+function getIP() {
+    var host = getHost();
     if(host==null) {
         return;
     }
     var record = dns.resolve(host, true);
     var ipArray = new Array();
-    while (record.hasMore())
-    {
+    while (record.hasMore()) {
         ipArray.push(record.getNextAddrAsString());
     }
     var ip = ipArray[0];
-    getAsData(ip, host);
+    return ip;
 }
 
 /****************************************************************************
@@ -125,7 +124,7 @@ function getIp(host) {
  ****************************************************************************/
 
 // Retrieve the AS data from the Cymru service
-function getAsData(ip, host) {
+function getAsData(ip) {
     Request({
         url: "http://whois.cymru.com/cgi-bin/whois.cgi",
         content: {
@@ -136,31 +135,32 @@ function getAsData(ip, host) {
             flag_prefix: 'prefix',
             submit_paste:'Submit'},
         onComplete: function (response){
-            parseAsData(response.text, host);
+            parseAsData(response.text, ip);
         }
     }).post();
 }
 
 // Since the data is sent embedded into an HTML document (very messy),
 // it has to be parsed and extracted by hand
-function parseAsData(cymruResponse, host) {
+function parseAsData(cymruResponse, ip) {
     doc = domParser.parseFromString(cymruResponse, "text/html");
     var node = doc.getElementsByTagName("pre")[0];
     if(node == null) return;
     var requestResult = node.childNodes[0].nodeValue;
-    
+    console.error("CymruResponse: "+requestResult);
     // Cutting unnecessary parts.
     var split1 = requestResult.split("AS Name");
     var split2 = split1[1].split("|");
-    
+
     // The extracted data
     var info = new Object();
-    info["cacheServer"] = getCacheServer();
+    info["brief"] = "true";
+    info["cacheserver"] = getCacheServer();
     info["asn"] = split2[0].trim();
-    info["asName"] = split2[3].trim();
+    info["asname"] = split2[3].trim();
     info["ip"] = split2[1].trim();
     info["prefix"] = split2[2].trim();
-    getValidity(info, host);
+    getValidity(info, ip);
 }
 
 /****************************************************************************
@@ -168,47 +168,51 @@ function parseAsData(cymruResponse, host) {
  *         and update the icon and the panel information
  ****************************************************************************/
 
-function getValidity(info, host) {
+function getValidity(info, ip) {
 /**
  * The following request causes an error for some reason (Error Console):
  * Error: NS_ERROR_XPC_BAD_CONVERT_JS: Could not convert JavaScript argument
- * 
+ *
  */
     Request({
-        url: onlineValidatorUrl,
+        url: onlineValidatorUrl+"AS"+info["asn"]+"/"+info["prefix"],
         content: {
-            cache_server: info["cacheServer"],
-            ip: info["ip"],
-            prefix: info["prefix"],
-            asn: info["asn"]
+            brief: info["brief"],
+            cache_server: info["cacheserver"]
         },
         onComplete: function (response) {
             if(response.status != 200) {
-                info["validity"] = "Validation Server Error" + 
+                info["validity"] = "Validation Server Error" +
                     " (" + response.status + " " + response.statusText + ")";
             } else {
-                info["validity"] = JSON.parse(response.text);
+                var val_response = JSON.parse(response.text);
+                info["validity"] = val_response.validated_route.validity;
             }
+            console.error("getValidity: "+response.text)
             info["timestamp"] = new Date();
-            rpkiData[host] = info;
+            rpkiData[ip] = info;
             updateWidgetIcon(info["validity"]);
-            updatePanelContent(info);        
+            updatePanelContent(info);
         }
-    }).post();
+    }).get();
 }
 
 function updateWidgetIcon(validity) {
     var tab = tabs.activeTab;
     var view = rpkiWidget.getView(tab.window);
     // Valid
-    if(validity.code == "1") {
-        view.contentURL = data.url("valid.png");
-    // Invalid
-    } else if(validity.code == "0") {
-        view.contentURL = data.url("invalid.png");
-    // Not found
-    } else if(validity.code == "-1") {
-        view.contentURL = data.url("notFound.png");
+    if (validity != null) {
+        if(validity.state.toLowerCase() === "valid") {
+            view.contentURL = data.url("valid.png");
+            // Not found
+        } else if(validity.state.toLowerCase() === "notfound") {
+            view.contentURL = data.url("notFound.png");
+        // Invalid
+        } else if(validity.state.toLowerCase().substring(0,7) === "invalid") {
+            view.contentURL = data.url("invalid.png");
+        } else {
+            view.contentURL = data.url("notAvailable.png");
+        }
     } else {
         view.contentURL = data.url("notAvailable.png");
     }
