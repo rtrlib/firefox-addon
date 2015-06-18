@@ -1,1 +1,40 @@
-{"license": "", "preferences": [{"type": "string", "name": "cacheServerHost", "value": "rpki-validator.realmv6.org", "title": "Cache Server Host"}, {"type": "string", "name": "cacheServerPort", "value": "8282", "title": "Cache Server Port"}, {"type": "string", "name": "cacheTimeToLive", "value": "90", "title": "Cache Time To Live (Seconds)"}], "contributors": [], "author": "sotitas", "url": "", "name": "rpki-validator", "dependencies": ["api-utils", "addon-kit"], "version": "1.32", "lib": "lib", "fullName": "RPKI Validator", "main": "main", "id": "jid0-uZoAZbBUw97zHHIbeAvemnN0XxA", "description": ""}
+{
+    "author": "smlng",
+    "name": "rpki-validator",
+    "version": "2.0",
+    "homepage": "http://rpki-validator.realmv6.org",
+    "description": "RPKI Validator",
+    "main": "lib/main.js",
+    "id": "jid0-uZoAZbBUw97zHHIbeAvemnN0XxA",
+    "license": "MIT",
+    "preferences": [
+        {
+            "type": "string",
+            "name": "validationServerURL",
+            "value": "http://rpki-rbv.realmv6.org/api/v1/validity/",
+            "title": "Validation server URL",
+            "description": "URL of validation server with RESTful API."
+        },
+        {
+            "type": "string",
+            "name": "cacheServerHost",
+            "value": "rpki-validator.realmv6.org",
+            "title": "Cache server hostname",
+            "description": "Hostname (FQDN) of cache server."
+        },
+        {
+            "type": "integer",
+            "name": "cacheServerPort",
+            "value": 8282,
+            "title": "Cache server port",
+            "description": "port of cache server."
+        },
+        {
+            "type": "integer",
+            "name": "cacheTTL",
+            "value": 90,
+            "title": "Cache TTL [s]",
+            "description": "Time to live of validation cache entries in seconds."
+        }
+    ]
+}

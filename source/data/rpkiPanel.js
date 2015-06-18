@@ -1,13 +1,13 @@
 var asn = document.getElementById("asn");
 var ip = document.getElementById("ip");
-var bgpPrefix = document.getElementById("bgpPrefix");
+var prefix = document.getElementById("prefix");
 var validity = document.getElementById("validity");
-var asName = document.getElementById("asName");
+var asname = document.getElementById("asname");
 
 self.port.on("panelContentReady", function (info) {
     asn.textContent = info["asn"];
     ip.textContent = info["ip"];
-    bgpPrefix.textContent = info["prefix"];
-    asName.textContent = info["asName"];
-    validity.textContent = info["validity"].message;
+    prefix.textContent = info["prefix"];
+    asname.textContent = info["asname"];
+    validity.textContent = info["validity"].state;
 });
