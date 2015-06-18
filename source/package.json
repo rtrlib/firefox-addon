@@ -27,7 +27,7 @@
     "dependencies": [
         "api-utils", "addon-kit"
     ],
-    "version": "1.32",
+    "version": "2.00",
     "lib": "lib",
     "fullName": "RPKI Validator",
     "main": "lib/main.js",
