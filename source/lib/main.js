@@ -21,25 +21,21 @@ var domParser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDO
 function onCacheServerChange(prefName) {
     rpkiData = new Object();
 }
-require("sdk/simple-prefs").on("cacheServerHost", onCacheServerChange);
-require("sdk/simple-prefs").on("cacheServerPort", onCacheServerChange);
+require("sdk/simple-prefs").on("cacheServerURL", onCacheServerChange);
 
 function getCacheServer() {
-    var host = require("sdk/simple-prefs").prefs.cacheServerHost;
-    var port = require("sdk/simple-prefs").prefs.cacheServerPort;
-    var cacheServer = host + ":" + port;
-    return cacheServer;
+    var cache_server = require("sdk/simple-prefs").prefs.cacheServerURL;
+    return cache_server;
 }
 
-// The maximum time in ms between creation time and when a cached validity
-// info expires.
+// timout in ms when a cached validity info expires.
 function getCacheTimeToLive() {
-    var cacheTimeToLive = parseInt(require("sdk/simple-prefs").prefs.cacheTimeToLive);
-    if (isNaN(cacheTimeToLive)) {
+    var cacheTTL = require("sdk/simple-prefs").prefs.cacheTTL;
+    if (isNaN(cacheTTL)) {
         console.error("Cannot parse cache time to live to integer. Using default value: 90 seconds.");
-        cacheTimeToLive = 90;
+        cacheTTL = 90;
     }
-    return cacheTimeToLive*1000;
+    return cacheTTL*1000;
 }
 
 /****************************************************************************
@@ -48,6 +44,7 @@ function getCacheTimeToLive() {
 
 //var onlineValidatorUrl = "http://localhost:5000/api/v1/validity/";
 var onlineValidatorUrl = "http://mobi22.cpt.haw-hamburg.de/api/v1/validity/";
+
 // Create a panel which will show all the information
 var rpkiPanel = require("sdk/panel").Panel({
   width: 400,
@@ -99,6 +96,7 @@ function clearData() {
  * Step 1: Get the IP based on the URL entered in the address bar
  ****************************************************************************/
 
+// Get host URL of active tab
 function getHost() {
     var url = require("sdk/url").URL(tabs.activeTab.url);
     return url.host;
@@ -164,16 +162,10 @@ function parseAsData(cymruResponse, ip) {
 }
 
 /****************************************************************************
- * Step 3: Get validity information from the Freie Universität Berlin server
- *         and update the icon and the panel information
+ * Step 3: Get validity information from validation server
  ****************************************************************************/
 
 function getValidity(info, ip) {
-/**
- * The following request causes an error for some reason (Error Console):
- * Error: NS_ERROR_XPC_BAD_CONVERT_JS: Could not convert JavaScript argument
- *
- */
     Request({
         url: onlineValidatorUrl+"AS"+info["asn"]+"/"+info["prefix"],
         content: {
