@@ -43,7 +43,7 @@ function getCacheTimeToLive() {
  ****************************************************************************/
 
 //var onlineValidatorUrl = "http://localhost:5000/api/v1/validity/";
-var onlineValidatorUrl = "http://mobi22.cpt.haw-hamburg.de/api/v1/validity/";
+var onlineValidatorUrl = require("sdk/simple-prefs").prefs.validationServerURL;
 
 // Create a panel which will show all the information
 var rpkiPanel = require("sdk/panel").Panel({

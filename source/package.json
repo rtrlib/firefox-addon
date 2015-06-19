@@ -14,7 +14,7 @@
         {
             "type": "string",
             "name": "validationServerURL",
-            "value": "http://rpki-validator.realmv6.org/api/v1/validity/",
+            "value": "http://mobi22.cpt.haw-hamburg.de/api/v1/validity/",
             "title": "Validation Server URL",
             "description": "URL of validation server with RESTful API, including base path."
         },
