@@ -38,12 +38,14 @@ function getCacheTimeToLive() {
     return cacheTTL*1000;
 }
 
+function getValidationServer() {
+    var onlineValidatorUrl = require("sdk/simple-prefs").prefs.validationServerURL;
+    return onlineValidatorUrl;
+}
+
 /****************************************************************************
  * Settings
  ****************************************************************************/
-
-//var onlineValidatorUrl = "http://localhost:5000/api/v1/validity/";
-var onlineValidatorUrl = require("sdk/simple-prefs").prefs.validationServerURL;
 
 // Create a panel which will show all the information
 var rpkiPanel = require("sdk/panel").Panel({
@@ -166,6 +168,7 @@ function parseAsData(cymruResponse, ip) {
  ****************************************************************************/
 
 function getValidity(info, ip) {
+    var onlineValidatorUrl = getValidationServer()
     Request({
         url: onlineValidatorUrl+"AS"+info["asn"]+"/"+info["prefix"],
         content: {
