@@ -40,6 +40,10 @@ function getCacheTimeToLive() {
 
 function getValidationServer() {
     var onlineValidatorUrl = require("sdk/simple-prefs").prefs.validationServerURL;
+    len = onlineValidatorUrl.length;
+    if (onlineValidatorUrl.indexOf("/",len-1) == -1) {
+      onlineValidatorUrl = onlineValidatorUrl+"/";
+    }
     return onlineValidatorUrl;
 }
 
