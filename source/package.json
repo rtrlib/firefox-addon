@@ -14,16 +14,23 @@
         {
             "type": "string",
             "name": "validationServerURL",
-            "value": "http://mobi22.cpt.haw-hamburg.de/api/v1/validity/",
+            "value": "http://rpki-validator.realmv6.org:9090/api/v1/validity/",
             "title": "Validation Server URL",
             "description": "URL of validation server with RESTful API, including base path."
         },
         {
             "type": "string",
-            "name": "cacheServerURL",
-            "value": "rpki-validator.realmv6.org:8282",
-            "title": "Cache Server URL",
-            "description": "URL of cache server including PORT, if required."
+            "name": "cacheServerHost",
+            "value": "rpki-validator.realmv6.org",
+            "title": "Cache server hostname",
+            "description": "Hostname (FQDN) of cache server."
+        },
+        {
+            "type": "integer",
+            "name": "cacheServerPort",
+            "value": 8282,
+            "title": "Cache Server port",
+            "description": "port of cache server."
         },
         {
             "type": "integer",

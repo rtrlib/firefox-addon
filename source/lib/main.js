@@ -21,11 +21,13 @@ var domParser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDO
 function onCacheServerChange(prefName) {
     rpkiData = new Object();
 }
-require("sdk/simple-prefs").on("cacheServerURL", onCacheServerChange);
+require("sdk/simple-prefs").on("cacheServerHost", onCacheServerChange);
+require("sdk/simple-prefs").on("cacheServerPort", onCacheServerChange);
 
 function getCacheServer() {
-    var cache_server = require("sdk/simple-prefs").prefs.cacheServerURL;
-    return cache_server;
+    var cache_server_host = require("sdk/simple-prefs").prefs.cacheServerHost;
+    var cache_server_port = require("sdk/simple-prefs").prefs.cacheServerPort;
+    return (cache_server_host+":"+cache_server_port);
 }
 
 // timout in ms when a cached validity info expires.
