@@ -7,16 +7,13 @@
     "main": "lib/main.js",
     "id": "jid0-uZoAZbBUw97zHHIbeAvemnN0XxA",
     "license": "MIT",
-    "dependencies": [
-        "api-utils", "addon-kit"
-    ],
     "preferences": [
         {
             "type": "string",
             "name": "validationServerURL",
             "value": "http://rpki-validator.realmv6.org:9090/api/v1/validity/",
-            "title": "Validation Server URL",
-            "description": "URL of validation server with RESTful API, including base path."
+            "title": "Validation server URL",
+            "description": "URL of validation server with RESTful API."
         },
         {
             "type": "string",
@@ -29,7 +26,7 @@
             "type": "integer",
             "name": "cacheServerPort",
             "value": 8282,
-            "title": "Cache Server port",
+            "title": "Cache server port",
             "description": "port of cache server."
         },
         {
