@@ -11,7 +11,7 @@
         {
             "type": "string",
             "name": "validationServerURL",
-            "value": "http://rpki-validator.realmv6.org:9090/api/v1/validity/",
+            "value": "http://rpki-rbv.realmv6.org/api/v1/validity/",
             "title": "Validation server URL",
             "description": "URL of validation server with RESTful API."
         },
