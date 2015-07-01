@@ -2,7 +2,7 @@
     "author": "smlng",
     "name": "rpki-validator",
     "version": "2.0",
-    "homepage": "http://rpki-validator.realmv6.org",
+    "homepage": "http://rpki.realmv6.org",
     "description": "RPKI Validator",
     "main": "lib/main.js",
     "id": "jid0-uZoAZbBUw97zHHIbeAvemnN0XxA",
@@ -13,7 +13,7 @@
             "name": "validationServerURL",
             "value": "http://rpki-rbv.realmv6.org/api/v1/validity/",
             "title": "Validation server URL",
-            "description": "URL of validation server with RESTful API."
+            "description": "URL of validation server providing RESTful API."
         },
         {
             "type": "string",
@@ -27,7 +27,7 @@
             "name": "cacheServerPort",
             "value": 8282,
             "title": "Cache server port",
-            "description": "port of cache server."
+            "description": "Port of cache server."
         },
         {
             "type": "integer",
