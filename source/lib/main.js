@@ -1,5 +1,7 @@
 var data = require("sdk/self").data;
 var tabs = require('sdk/tabs');
+var panels = require("sdk/panel");
+var { ToggleButton } = require('sdk/ui/button/toggle');
 var { Cc, Ci } = require('chrome');
 var Request = require("sdk/request").Request;
 // Associative array for storing all the information belonging to each host
@@ -54,21 +56,32 @@ function getValidationServer() {
  ****************************************************************************/
 
 // Create a panel which will show all the information
-var rpkiPanel = require("sdk/panel").Panel({
+var rpkiPanel = panels.Panel({
   width: 400,
-  height: 130,
+  height: 150,
   contentURL: data.url("rpkiPanel.html"),
   contentScriptFile: data.url("rpkiPanel.js"),
+  onHide: handleHide
 });
 
-// Create a widget, and attach the panel to it, so the panel is
-// shown when the user clicks the widget.
-var rpkiWidget = require("sdk/widget").Widget({
-  label: "RPKI Validator",
-  id: "rpki-validator-widget",
-  contentURL: data.url("notFound.png"),
-  panel: rpkiPanel
+var rpkiButton = ToggleButton({
+    label: "RPKI Validator",
+    id: "rpki-validator-button",
+    icon: data.url("notFound.png"),
+    onChange: handleChange
 });
+
+function handleChange(state) {
+  if (state.checked) {
+    rpkiPanel.show({
+      position: rpkiButton
+    });
+  }
+}
+
+function handleHide() {
+  rpkiButton.state('window', {checked: false});
+}
 
 tabs.on('ready', updateData);
 tabs.on('activate', updateData);
@@ -83,14 +96,14 @@ function updateData(tab) {
         clearData();
         getAsData(ip);
     } else {
-        updateWidgetIcon(info["validity"]);
+        updateButtonIcon(info["validity"]);
         updatePanelContent(info);
     }
 }
 
 // Remove all the information from the panel and set the icon to the default state
 function clearData() {
-    updateWidgetIcon(null);
+    updateButtonIcon(null);
     var info = new Object();
     info["ip"] = "N/A";
     info["prefix"] = "N/A";
@@ -192,30 +205,28 @@ function getValidity(info, ip) {
             console.error("getValidity: "+response.text)
             info["timestamp"] = new Date();
             rpkiData[ip] = info;
-            updateWidgetIcon(info["validity"]);
+            updateButtonIcon(info["validity"]);
             updatePanelContent(info);
         }
     }).get();
 }
 
-function updateWidgetIcon(validity) {
-    var tab = tabs.activeTab;
-    var view = rpkiWidget.getView(tab.window);
+function updateButtonIcon(validity) {
     // Valid
     if (validity != null) {
         if(validity.state.toLowerCase() === "valid") {
-            view.contentURL = data.url("valid.png");
+            rpkiButton.icon = data.url("valid.png");
             // Not found
         } else if(validity.state.toLowerCase() === "notfound") {
-            view.contentURL = data.url("notFound.png");
+            rpkiButton.icon = data.url("notFound.png");
         // Invalid
         } else if(validity.state.toLowerCase().substring(0,7) === "invalid") {
-            view.contentURL = data.url("invalid.png");
+            rpkiButton.icon = data.url("invalid.png");
         } else {
-            view.contentURL = data.url("notAvailable.png");
+            rpkiButton.icon = data.url("notAvailable.png");
         }
     } else {
-        view.contentURL = data.url("notAvailable.png");
+        rpkiButton.icon = data.url("notAvailable.png");
     }
 }
 

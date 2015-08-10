@@ -12,6 +12,7 @@
         }
         span.label
         {
+            font-weight: bold;
             width:120px;
             display:inline-block;
         }
@@ -19,28 +20,28 @@
 </head>
 
 <body>
-    <div id="edit-box">
-        <div>
-            <span class="label">AS Number: </span>
-            <span id="asn"></span>
-        </div>
-        <div>
-            <span class="label">AS Name: </span>
-            <span id="asname"></span>
-        </div>
-        <div>
-            <span class="label">IP Address: </span>
-            <span id="ip"></span>
-        </div>
-        <div>
-            <span class="label">BGP Prefix: </span>
-            <span id="prefix"></span>
-        </div>
-        <div>
-            <span class="label">Validation Result: </span>
-            <span id="validity"></span>
-        </div>
-    </div>
+    <table cellspacing="0" style="border-collapse: collapse; clear: both; width:100%">
+        <tr>
+            <td><span class="label">AS Number</span></td>
+            <td><span id="asn"></span></td>
+        </tr>
+        <tr>
+            <td><span class="label">AS Name</span></td>
+            <td><span id="asname"></span></td>
+        </tr>
+        <tr>
+            <td><span class="label">IP Address</span></td>
+            <td><span id="ip"></span><td>
+        </tr>
+        <tr>
+            <td><span class="label">BGP Prefix</span></td>
+            <td><span id="prefix"></span></td>
+        </tr>
+        <tr>
+            <td><span class="label">Validation Result</span></td>
+            <td><span id="validity"></span></td>
+        </tr>
+    </table>
   </body>
 
 </html>
