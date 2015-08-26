@@ -1,7 +1,7 @@
 {
     "author": "smlng",
     "name": "rpki-validator",
-    "version": "2.1",
+    "version": "2.2",
     "homepage": "http://rpki.realmv6.org",
     "description": "RPKI Validator",
     "main": "lib/main.js",

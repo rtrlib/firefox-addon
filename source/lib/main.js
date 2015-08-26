@@ -1,25 +1,12 @@
 var data = require("sdk/self").data;
-var tabs = require('sdk/tabs');
-var panels = require("sdk/panel");
-var { ToggleButton } = require('sdk/ui/button/toggle');
-var { Cc, Ci } = require('chrome');
 var Request = require("sdk/request").Request;
-// Associative array for storing all the information belonging to each host
+var tabs = require('sdk/tabs');
+var { ToggleButton } = require('sdk/ui/button/toggle');
+
+// Associative array for storing all the information belonging to each host/IP
 var rpkiData = new Object();
 
-/**
- * DNS Service for resolving the domain into an IP
- * http://stackoverflow.com/questions/1082728/ip-address-lookup-in-a-firefox-extension
- */
-var dns = Cc['@mozilla.org/network/dns-service;1'].getService(Ci.nsIDNSService);
-
-/**
- * DOM Parser for parsing the result go from Cymru
- * http://stackoverflow.com/questions/9171590/how-to-parse-a-xml-string-in-a-firefox-addon-using-add-on-sdk
- */
-var domParser = Cc["@mozilla.org/xmlextras/domparser;1"].createInstance(Ci.nsIDOMParser);
-
-// Removed cached validation data when the cache server preference changes
+// Remove cached validation data when the cache server preference changes
 function onCacheServerChange(prefName) {
     rpkiData = new Object();
 }
@@ -56,7 +43,7 @@ function getValidationServer() {
  ****************************************************************************/
 
 // Create a panel which will show all the information
-var rpkiPanel = panels.Panel({
+var rpkiPanel = require("sdk/panel").Panel({
   width: 400,
   height: 150,
   contentURL: data.url("rpkiPanel.html"),
@@ -64,6 +51,7 @@ var rpkiPanel = panels.Panel({
   onHide: handleHide
 });
 
+// Create button in toolbar
 var rpkiButton = ToggleButton({
     label: "RPKI Validator",
     id: "rpki-validator-button",
@@ -71,6 +59,7 @@ var rpkiButton = ToggleButton({
     onChange: handleChange
 });
 
+// handle button
 function handleChange(state) {
   if (state.checked) {
     rpkiPanel.show({
@@ -89,6 +78,9 @@ tabs.on('activate', updateData);
 // The main function which updates the icon and the information in the panel
 function updateData(tab) {
     var ip = getIP();
+    // do nothing if no IP
+    if (ip == null) return;
+
     var info = rpkiData[ip];
     var now = new Date();
     if(info == null || (now - info["timestamp"])>getCacheTimeToLive()) {
@@ -123,18 +115,10 @@ function getHost() {
     return url.host;
 }
 
-// Resolve the domain into the IP using Mozilla's DNS service
+// Resolve the domain host into IP, using Mozilla's DNS service
 function getIP() {
     var host = getHost();
-    if(host==null) {
-        return;
-    }
-    var record = dns.resolve(host, true);
-    var ipArray = new Array();
-    while (record.hasMore()) {
-        ipArray.push(record.getNextAddrAsString());
-    }
-    var ip = ipArray[0];
+    var ip = require("./util").resolveHostname(host);
     return ip;
 }
 
@@ -159,13 +143,10 @@ function getAsData(ip) {
     }).post();
 }
 
-// Since the data is sent embedded into an HTML document (very messy),
-// it has to be parsed and extracted by hand
+// parse HTML response into simple string
 function parseAsData(cymruResponse, ip) {
-    doc = domParser.parseFromString(cymruResponse, "text/html");
-    var node = doc.getElementsByTagName("pre")[0];
-    if(node == null) return;
-    var requestResult = node.childNodes[0].nodeValue;
+    var requestResult = require("./util").parseResponse(cymruResponse);
+    if (requestResult == null) return;
     console.error("CymruResponse: "+requestResult);
     // Cutting unnecessary parts.
     var split1 = requestResult.split("AS Name");
@@ -211,6 +192,7 @@ function getValidity(info, ip) {
     }).get();
 }
 
+// change button icon according to validity
 function updateButtonIcon(validity) {
     // Valid
     if (validity != null) {
@@ -230,6 +212,7 @@ function updateButtonIcon(validity) {
     }
 }
 
+// update panel content
 function updatePanelContent(info) {
     rpkiPanel.port.emit("panelContentReady", info);
 }
