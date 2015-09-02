@@ -5,7 +5,7 @@
 First, download and install the Firefox Addon SDK as described
 [here](https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Installation).
 Second, open a terminal and clone the Firefox addon repo (this one), afterwards
-directory to change ```<path/to/addon-clone>/source```.
+change directory to ```<path/to/addon-clone>/source```.
 Third, run ```<path/to/sdk>/bin/cfx xpi``` within the source directory, this
 will create the ```rpki-validator.xpi```. Next steps see install.
 
